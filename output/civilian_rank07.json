@@ -1,0 +1,17 @@
+{
+  "mmsi_a": 261002520,
+  "mmsi_b": 261018880,
+  "name_a": "DZI-100",
+  "name_b": "DZI-10",
+  "ship_type_a": "Fishing",
+  "ship_type_b": "Fishing",
+  "timestamp_utc": "2021-12-17T21:09:03.000",
+  "lat_a": 54.627173,
+  "lon_a": 14.348403,
+  "lat_b": 54.62722,
+  "lon_b": 14.348335,
+  "distance_m": 6.8170637107,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": null
+}

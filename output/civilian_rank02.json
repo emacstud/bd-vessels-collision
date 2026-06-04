@@ -1,0 +1,24 @@
+{
+  "mmsi_a": 211810060,
+  "mmsi_b": 253754000,
+  "name_a": "WINDCAT 43",
+  "name_b": "GEO OCEAN V",
+  "ship_type_a": "HSC",
+  "ship_type_b": "Other",
+  "timestamp_utc": "2021-12-24T09:24:55.000",
+  "lat_a": 54.749328,
+  "lon_a": 14.783592,
+  "lat_b": 54.749342,
+  "lon_b": 14.783593,
+  "distance_m": 1.5580513565,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": {
+    "timestamp_utc": "2021-12-24T09:26:24",
+    "lat_a": 54.749943,
+    "lon_a": 14.783377,
+    "lat_b": 54.75003,
+    "lon_b": 14.78335,
+    "distance_m": 9.827912851184122
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "mmsi_a": 219028337,
+  "mmsi_b": 563255000,
+  "name_a": "SVITZER EDDA",
+  "name_b": "VIKING AMBER",
+  "ship_type_a": "Tug",
+  "ship_type_b": "Cargo",
+  "timestamp_utc": "2021-12-05T07:45:30.000",
+  "lat_a": 55.626175,
+  "lon_a": 12.98144,
+  "lat_b": 55.626168,
+  "lon_b": 12.981455,
+  "distance_m": 1.2217354898,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": null
+}

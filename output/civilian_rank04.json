@@ -1,0 +1,17 @@
+{
+  "mmsi_a": 265750000,
+  "mmsi_b": 265755000,
+  "name_a": "LAGUNA",
+  "name_b": "COURAGE AF SKILLINGE",
+  "ship_type_a": "Fishing",
+  "ship_type_b": "Other",
+  "timestamp_utc": "2021-12-14T06:10:49.000",
+  "lat_a": 55.557765,
+  "lon_a": 14.356102,
+  "lat_b": 55.55774,
+  "lon_b": 14.356133,
+  "distance_m": 3.3953627842,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": null
+}

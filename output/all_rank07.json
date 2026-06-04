@@ -1,0 +1,17 @@
+{
+  "mmsi_a": 265011730,
+  "mmsi_b": 265759020,
+  "name_a": "RESCUE CASQUE",
+  "name_b": "RESCUE B JARLEBRING",
+  "ship_type_a": "SAR",
+  "ship_type_b": "SAR",
+  "timestamp_utc": "2021-12-27T14:49:09.000",
+  "lat_a": 55.675327,
+  "lon_a": 13.044183,
+  "lat_b": 55.675333,
+  "lon_b": 13.044167,
+  "distance_m": 1.2048032136,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": null
+}

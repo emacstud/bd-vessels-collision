@@ -1,0 +1,8 @@
+services:
+  vessels-collision:
+    build: .
+    image: vessels-collision:latest
+    container_name: vessels-collision
+    volumes:
+      - ./data:/app/data
+      - ./output:/app/output

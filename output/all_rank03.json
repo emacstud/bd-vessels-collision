@@ -1,0 +1,17 @@
+{
+  "mmsi_a": 265768840,
+  "mmsi_b": 265816840,
+  "name_a": "RESCUE RUBEN RAUSING",
+  "name_b": "RESCUE SNOW",
+  "ship_type_a": "SAR",
+  "ship_type_b": "SAR",
+  "timestamp_utc": "2021-12-11T10:03:22.000",
+  "lat_a": 55.418138,
+  "lon_a": 12.928015,
+  "lat_b": 55.418138,
+  "lon_b": 12.928002,
+  "distance_m": 0.8204607993,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": null
+}

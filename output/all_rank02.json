@@ -1,0 +1,24 @@
+{
+  "mmsi_a": 230053260,
+  "mmsi_b": 265512660,
+  "name_a": "SOUND NEPTUNUS",
+  "name_b": "SOUND CASTOR",
+  "ship_type_a": "Dredging",
+  "ship_type_b": "Undefined",
+  "timestamp_utc": "2021-12-17T10:28:31.000",
+  "lat_a": 55.737863,
+  "lon_a": 14.456278,
+  "lat_b": 55.737867,
+  "lon_b": 14.456267,
+  "distance_m": 0.8197602541,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": {
+    "timestamp_utc": "2021-12-17T10:19:09",
+    "lat_a": 55.753423,
+    "lon_a": 14.464215,
+    "lat_b": 55.75345,
+    "lon_b": 14.4642,
+    "distance_m": 3.1455707480878337
+  }
+}

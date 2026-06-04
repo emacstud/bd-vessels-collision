@@ -1,0 +1,17 @@
+{
+  "mmsi_a": 265011730,
+  "mmsi_b": 265714460,
+  "name_a": "RESCUE CASQUE",
+  "name_b": "RESCUE FAMOUS",
+  "ship_type_a": "SAR",
+  "ship_type_b": "SAR",
+  "timestamp_utc": "2021-12-28T19:50:13.000",
+  "lat_a": 55.675823,
+  "lon_a": 13.059045,
+  "lat_b": 55.675833,
+  "lon_b": 13.05905,
+  "distance_m": 1.1552980277,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": null
+}

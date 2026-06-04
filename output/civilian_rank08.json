@@ -1,0 +1,17 @@
+{
+  "mmsi_a": 265755000,
+  "mmsi_b": 266315000,
+  "name_a": "COURAGE AF SKILLINGE",
+  "name_b": "MIRACULIX",
+  "ship_type_a": "Other",
+  "ship_type_b": "Fishing",
+  "timestamp_utc": "2021-12-07T06:31:42.000",
+  "lat_a": 55.557137,
+  "lon_a": 14.358233,
+  "lat_b": 55.557077,
+  "lon_b": 14.35809,
+  "distance_m": 11.1978025467,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": null
+}

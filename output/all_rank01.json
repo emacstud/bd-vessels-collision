@@ -1,0 +1,24 @@
+{
+  "mmsi_a": 265388000,
+  "mmsi_b": 266334000,
+  "name_a": "KBV 302",
+  "name_b": "KBV 034",
+  "ship_type_a": "Law enforcement",
+  "ship_type_b": "Law enforcement",
+  "timestamp_utc": "2021-12-13T10:43:26.000",
+  "lat_a": 55.317565,
+  "lon_a": 14.168575,
+  "lat_b": 55.317563,
+  "lon_b": 14.168578,
+  "distance_m": 0.2923841189,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": {
+    "timestamp_utc": "2021-12-13T10:33:33",
+    "lat_a": 55.311245,
+    "lon_a": 14.18712,
+    "lat_b": 55.311263,
+    "lon_b": 14.187057,
+    "distance_m": 4.461038131685084
+  }
+}

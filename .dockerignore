@@ -1,0 +1,15 @@
+# Keep build context tiny — these are mounted at runtime, not baked into the image
+data/
+output/
+
+.git/
+.gitignore
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+.DS_Store
+.vscode/
+.idea/

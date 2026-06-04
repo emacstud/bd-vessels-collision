@@ -1,0 +1,24 @@
+{
+  "mmsi_a": 231848000,
+  "mmsi_b": 257206000,
+  "name_a": "SVITZER GEO",
+  "name_b": "GERDA",
+  "ship_type_a": "Tug",
+  "ship_type_b": "Tanker",
+  "timestamp_utc": "2021-12-03T06:10:32.000",
+  "lat_a": 55.62481,
+  "lon_a": 12.983217,
+  "lat_b": 55.624808,
+  "lon_b": 12.98323,
+  "distance_m": 0.845918777,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": {
+    "timestamp_utc": "2021-12-03T06:06:54",
+    "lat_a": 55.631073,
+    "lon_a": 12.974857,
+    "lat_b": 55.631067,
+    "lon_b": 12.974812,
+    "distance_m": 2.9024464948908113
+  }
+}

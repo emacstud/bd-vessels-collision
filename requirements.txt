@@ -1,0 +1,7 @@
+pyspark==3.5.8
+pyarrow==17.0.0
+pandas==2.2.3
+requests==2.32.3
+tqdm==4.66.5
+folium==0.17.0
+matplotlib==3.9.2

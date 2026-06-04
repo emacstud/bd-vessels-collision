@@ -1,0 +1,17 @@
+{
+  "mmsi_a": 261001010,
+  "mmsi_b": 261006320,
+  "name_a": "M/Y NUREK 2",
+  "name_b": "M/Y NUREK",
+  "ship_type_a": "Pleasure",
+  "ship_type_b": "Pleasure",
+  "timestamp_utc": "2021-12-23T10:27:09.000",
+  "lat_a": 55.121995,
+  "lon_a": 14.654287,
+  "lat_b": 55.121818,
+  "lon_b": 14.654348,
+  "distance_m": 20.06005219,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": null
+}

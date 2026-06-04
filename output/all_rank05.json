@@ -1,0 +1,17 @@
+{
+  "mmsi_a": 219019287,
+  "mmsi_b": 219021428,
+  "name_a": "HG 162 NORTH OCEAN",
+  "name_b": "HG 165 SOUTH OCEAN",
+  "ship_type_a": "Fishing",
+  "ship_type_b": "Fishing",
+  "timestamp_utc": "2021-12-03T16:02:32.000",
+  "lat_a": 55.243472,
+  "lon_a": 15.087747,
+  "lat_b": 55.243482,
+  "lon_b": 15.087745,
+  "distance_m": 1.1191537303,
+  "window_minutes": 10,
+  "first_close_threshold_m": 10.0,
+  "first_close": null
+}
