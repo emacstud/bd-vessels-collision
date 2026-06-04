@@ -11,14 +11,17 @@ from . import clean, detect, download, ingest, visualize
 
 
 def _header(num: int, name: str) -> None:
+    """Print a banner announcing that pipeline stage `num` is running."""
     print(f"\n{'=' * 70}\n[{num}/5] {name}\n{'=' * 70}")
 
 
 def _skip(num: int, name: str, reason: str) -> None:
+    """Print a single-line note that pipeline stage `num` was skipped (idempotency check passed)."""
     print(f"\n[{num}/5] skip {name} -- {reason}")
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Orchestrate the 5-stage pipeline (download → ingest → clean → detect → visualize), skipping any stage whose outputs already exist."""
     p = argparse.ArgumentParser(description="Full vessels-collision pipeline.")
     p.add_argument("--year", type=int, default=2021)
     p.add_argument("--month", type=int, default=12)

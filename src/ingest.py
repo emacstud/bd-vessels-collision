@@ -49,6 +49,7 @@ RAW_SCHEMA = StructType([
 
 
 def extract_zip(zip_path: Path, dest_dir: Path) -> list[Path]:
+    """Extract the AIS monthly ZIP's daily CSVs into `dest_dir`, skipping already-extracted ones."""
     dest_dir.mkdir(parents=True, exist_ok=True)
     if not zip_path.exists():
         existing = sorted(dest_dir.glob("aisdk-*.csv"))
@@ -77,6 +78,7 @@ def extract_zip(zip_path: Path, dest_dir: Path) -> list[Path]:
 
 
 def build_spark() -> SparkSession:
+    """Build a local-mode SparkSession tuned for the single-machine ingest job."""
     spark = (
         SparkSession.builder
         .appName("aisdk-ingest")
@@ -92,6 +94,7 @@ def build_spark() -> SparkSession:
 
 
 def transform(df: DataFrame) -> DataFrame:
+    """Parse the raw 26-column AIS schema down to the 13 columns the rest of the pipeline uses."""
     return (
         df.select(
             F.to_timestamp(F.col("`# Timestamp`"), "dd/MM/yyyy HH:mm:ss").alias("ts"),
@@ -112,6 +115,7 @@ def transform(df: DataFrame) -> DataFrame:
 
 
 def ingest(spark: SparkSession, csv_glob: str, out_dir: Path) -> None:
+    """Read all matching CSVs, apply the schema, and write a day-partitioned Parquet dataset."""
     raw = (
         spark.read
         .option("header", True)
@@ -130,6 +134,7 @@ def ingest(spark: SparkSession, csv_glob: str, out_dir: Path) -> None:
 
 
 def summarize(spark: SparkSession, out_dir: Path) -> None:
+    """Print row count and day-partition count of the written Parquet for verification."""
     df = spark.read.parquet(str(out_dir))
     rows = df.count()
     partitions = sorted(
@@ -140,6 +145,7 @@ def summarize(spark: SparkSession, out_dir: Path) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """CLI entrypoint: extract the ZIP and run the ingest job, skipping if a _SUCCESS marker exists."""
     p = argparse.ArgumentParser(description="Ingest AIS ZIP into day-partitioned Parquet.")
     p.add_argument("--zip", type=Path, default=Path("/app/data/raw/aisdk-2021-12.zip"))
     p.add_argument("--extracted-dir", type=Path, default=Path("/app/data/raw/extracted"))

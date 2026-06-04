@@ -11,14 +11,5 @@
   "lat_b": 54.749342,
   "lon_b": 14.783593,
   "distance_m": 1.5580513565,
-  "window_minutes": 10,
-  "first_close_threshold_m": 10.0,
-  "first_close": {
-    "timestamp_utc": "2021-12-24T09:26:24",
-    "lat_a": 54.749943,
-    "lon_a": 14.783377,
-    "lat_b": 54.75003,
-    "lon_b": 14.78335,
-    "distance_m": 9.827912851184122
-  }
+  "window_minutes": 10
 }

@@ -11,7 +11,5 @@
   "lat_b": 55.675833,
   "lon_b": 13.05905,
   "distance_m": 1.1552980277,
-  "window_minutes": 10,
-  "first_close_threshold_m": 10.0,
-  "first_close": null
+  "window_minutes": 10
 }

@@ -30,6 +30,7 @@ MID_FILE = Path(__file__).resolve().parent / "resources" / "MID.csv"
 
 
 def _load_mid_codes() -> list[int]:
+    """Load the ITU-R M.585 Maritime Identification Digit (country code) list from the bundled CSV."""
     with open(MID_FILE, newline="", encoding="cp1252") as f:
         return [int(row["Digit"].strip()) for row in csv.DictReader(f)]
 
@@ -38,6 +39,7 @@ MID_CODES = _load_mid_codes()
 
 
 def haversine_nm(lat1: Column, lon1: Column, lat2: Column, lon2: Column) -> Column:
+    """Compute the great-circle distance in nautical miles, as a vectorised Spark SQL expression."""
     lat1_r = F.radians(lat1)
     lat2_r = F.radians(lat2)
     dlat = lat2_r - lat1_r
@@ -47,6 +49,7 @@ def haversine_nm(lat1: Column, lon1: Column, lat2: Column, lon2: Column) -> Colu
 
 
 def spatial_filter(df: DataFrame) -> DataFrame:
+    """Keep only pings inside the 50 nm Bornholm circle (cheap bounding box first, then exact Haversine)."""
     return (
         df
         .filter(F.col("lat").between(BBOX_LAT_MIN, BBOX_LAT_MAX))
@@ -61,6 +64,7 @@ def spatial_filter(df: DataFrame) -> DataFrame:
 
 
 def normalize_sog(df: DataFrame) -> DataFrame:
+    """Clamp the AIS speed-over-ground sentinel values (<0 or >=102.2 kn) to zero."""
     return df.withColumn(
         "sog",
         F.when(F.col("sog") < 0, F.lit(0.0))
@@ -70,6 +74,7 @@ def normalize_sog(df: DataFrame) -> DataFrame:
 
 
 def mmsi_filter(df: DataFrame) -> DataFrame:
+    """Drop invalid MMSIs (ITU-R M.585 rules) and MMSIs that never moved above 1 kn during the month."""
     df = (
         df
         .filter(F.col("mmsi").isNotNull())
@@ -88,6 +93,7 @@ def mmsi_filter(df: DataFrame) -> DataFrame:
 
 
 def gps_jump_filter(df: DataFrame) -> DataFrame:
+    """Drop GPS-teleport outliers: pings whose implied speed exceeds 50 kn to BOTH neighbours."""
     w = Window.partitionBy("mmsi").orderBy("ts")
     df = (
         df
@@ -179,6 +185,7 @@ def fill_vessel_names(df: DataFrame) -> DataFrame:
 
 
 def sparsity_filter(df: DataFrame) -> DataFrame:
+    """Drop MMSIs with fewer than 20 surviving pings — trajectories too thin for reliable detection."""
     keep = (
         df.groupBy("mmsi")
         .count()
@@ -189,6 +196,7 @@ def sparsity_filter(df: DataFrame) -> DataFrame:
 
 
 def _print_stage(label: str, n: int, prev_n: int | None) -> None:
+    """Pretty-print a per-stage row count plus how many rows the previous stage dropped."""
     if prev_n is None:
         print(f"  {label:25s}: {n:>15,}")
     else:
@@ -198,11 +206,13 @@ def _print_stage(label: str, n: int, prev_n: int | None) -> None:
 
 
 def clean(df: DataFrame) -> DataFrame:
+    """Run the full filter pipeline (spatial → SOG → MMSI → GPS-jump → sparsity → name fill) with per-stage row counts."""
     n_prev = df.count()
     _print_stage("input (raw)", n_prev, None)
     prev_cached: DataFrame | None = None
 
     def stage(new_df: DataFrame, label: str) -> DataFrame:
+        """Cache, count, log, and unpersist the previous stage — single bounded cache live at a time."""
         nonlocal n_prev, prev_cached
         new_df = new_df.cache()
         n = new_df.count()
@@ -223,6 +233,7 @@ def clean(df: DataFrame) -> DataFrame:
 
 
 def build_spark() -> SparkSession:
+    """Build a local-mode SparkSession tuned for the single-machine clean job."""
     spark = (
         SparkSession.builder
         .appName("aisdk-clean")
@@ -238,6 +249,7 @@ def build_spark() -> SparkSession:
 
 
 def summarize(spark: SparkSession, out_dir: Path) -> None:
+    """Print final row count and distinct-MMSI count for the cleaned Parquet."""
     df = spark.read.parquet(str(out_dir))
     rows = df.count()
     mmsis = df.select("mmsi").distinct().count()
@@ -246,6 +258,7 @@ def summarize(spark: SparkSession, out_dir: Path) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """CLI entrypoint: read raw Parquet, apply the clean pipeline, write cleaned Parquet."""
     p = argparse.ArgumentParser(description="Clean AIS Parquet (spatial + motion + GPS-jump).")
     p.add_argument("--in", dest="inp", type=Path,
                    default=Path("/app/data/processed/aisdk-2021-12"))

@@ -18,6 +18,7 @@ WINDOW_MINUTES = 10
 
 
 def build_spark() -> SparkSession:
+    """Build a lightweight local-mode SparkSession for the small slice the visualizer needs."""
     spark = (
         SparkSession.builder
         .appName("aisdk-visualize")
@@ -37,6 +38,7 @@ def extract_window(
     mmsi_b: int,
     t_center: pd.Timestamp,
 ) -> pd.DataFrame:
+    """Read the ±10 min ping window for the two MMSIs from the cleaned Parquet, collected to Pandas."""
     t_start = t_center - pd.Timedelta(minutes=WINDOW_MINUTES)
     t_end = t_center + pd.Timedelta(minutes=WINDOW_MINUTES)
     df = (
@@ -49,11 +51,13 @@ def extract_window(
 
 
 def _vessel_label(group: pd.DataFrame, mmsi: int) -> str:
+    """Build a display label for a vessel, falling back to 'MMSI <n>' if no name was broadcast."""
     name = group["name"].dropna().iloc[0] if not group["name"].dropna().empty else f"MMSI {mmsi}"
     return f"{name} ({mmsi})"
 
 
 def _closest_to(group: pd.DataFrame, t_center: pd.Timestamp) -> pd.Series:
+    """Return the ping from `group` whose timestamp is closest to `t_center`."""
     ts_ns = group["ts"].to_numpy().astype("int64")
     pos = int(np.abs(ts_ns - t_center.value).argmin())
     return group.iloc[pos]
@@ -62,6 +66,7 @@ def _closest_to(group: pd.DataFrame, t_center: pd.Timestamp) -> pd.Series:
 def _add_direction_arrows(
     ax, group: pd.DataFrame, color: str, arrow_len: float, n_arrows: int = 5
 ) -> None:
+    """Draw small fixed-length heading arrows at evenly-spaced points along a trajectory."""
     n = len(group)
     if n < 2:
         return
@@ -93,6 +98,7 @@ def render_folium(
     pair_ts: dict[int, pd.Timestamp],
     out_html: Path,
 ) -> None:
+    """Render an interactive Folium map of the two vessels' trajectories to an HTML file."""
     center_lat = traj["lat"].mean()
     center_lon = traj["lon"].mean()
     m = folium.Map(location=[center_lat, center_lon], zoom_start=15, tiles="CartoDB positron")
@@ -130,6 +136,7 @@ def render_matplotlib(
     title: str,
     out_png: Path,
 ) -> None:
+    """Render a static matplotlib trajectory PNG with direction arrows and closest-approach markers."""
     fig, ax = plt.subplots(figsize=(10, 8))
     colors = {mmsi_a: "tab:blue", mmsi_b: "tab:red"}
 
@@ -173,6 +180,7 @@ def render_one(
     out_png: Path,
     out_result: Path,
 ) -> dict | None:
+    """Extract the ±10 min trajectory window for one pair, render HTML + PNG, write the result JSON."""
     mmsi_a = int(pair["mmsi_a"])
     mmsi_b = int(pair["mmsi_b"])
     t_a = pd.Timestamp(pair["ts_a"])
@@ -211,6 +219,7 @@ def render_one(
 
 
 def main(argv: list[str] | None = None) -> int:
+    """CLI entrypoint: pick rank N from a top_pairs JSON, render its trajectory map and result.json."""
     p = argparse.ArgumentParser(description="Visualize a detected collision pair.")
     p.add_argument("--in", dest="inp", type=Path,
                    default=Path("/app/data/processed/aisdk-2021-12-clean"))

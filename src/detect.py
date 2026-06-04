@@ -26,6 +26,7 @@ FORWARD_OFFSETS = [(0, 0), (0, 1), (1, -1), (1, 0), (1, 1)]
 
 
 def haversine_nm(lat1: Column, lon1: Column, lat2: Column, lon2: Column) -> Column:
+    """Vectorised Spark SQL Haversine distance in nautical miles between two lat/lon pairs."""
     lat1_r = F.radians(lat1)
     lat2_r = F.radians(lat2)
     dlat = lat2_r - lat1_r
@@ -35,6 +36,7 @@ def haversine_nm(lat1: Column, lon1: Column, lat2: Column, lon2: Column) -> Colu
 
 
 def with_bucket_keys(df: DataFrame) -> DataFrame:
+    """Add (time_bucket, lat_cell, lon_cell) integer keys used as the self-join hash key."""
     return (
         df
         .withColumn("time_bucket", (F.col("ts").cast("long") / TIME_BUCKET_S).cast("long"))
@@ -44,6 +46,7 @@ def with_bucket_keys(df: DataFrame) -> DataFrame:
 
 
 def expand_neighbors(df: DataFrame, spark: SparkSession) -> DataFrame:
+    """Emit each ping into 5 variant cells (self + 4 forward neighbours) so adjacent-cell pairs can join."""
     offsets_df = spark.createDataFrame(FORWARD_OFFSETS, ["dx", "dy"])
     return (
         df.crossJoin(F.broadcast(offsets_df))
@@ -54,6 +57,7 @@ def expand_neighbors(df: DataFrame, spark: SparkSession) -> DataFrame:
 
 
 def detect_pairs(spark: SparkSession, df: DataFrame) -> DataFrame:
+    """Spatial-temporal self-join: emit candidate pairs of moving pings within 100 m of each other."""
     df = with_bucket_keys(df).filter(F.col("sog") > MIN_MOVING_SOG_KN)
     right = expand_neighbors(df, spark).alias("b")
     left = df.alias("a")
@@ -86,6 +90,7 @@ def detect_pairs(spark: SparkSession, df: DataFrame) -> DataFrame:
     a_lower = F.col("a.mmsi") < F.col("b.mmsi")
 
     def pick(col_a: str, col_b: str) -> Column:
+        """Canonicalise A/B columns so the vessel with the smaller MMSI is always 'a'."""
         return F.when(a_lower, F.col(col_a)).otherwise(F.col(col_b))
 
     return pairs.select(
@@ -114,6 +119,7 @@ def detect_pairs(spark: SparkSession, df: DataFrame) -> DataFrame:
 
 
 def top_n_distinct(pairs: DataFrame, n: int) -> DataFrame:
+    """Keep the closest ping pair per (mmsi_a, mmsi_b) and return the global top-N rows ordered by distance."""
     w = Window.partitionBy("mmsi_a", "mmsi_b").orderBy("dist_m")
     return (
         pairs.withColumn("rn", F.row_number().over(w))
@@ -125,6 +131,7 @@ def top_n_distinct(pairs: DataFrame, n: int) -> DataFrame:
 
 
 def build_spark() -> SparkSession:
+    """Build a local-mode SparkSession tuned for the single-machine detect join."""
     spark = (
         SparkSession.builder
         .appName("aisdk-detect")
@@ -140,6 +147,7 @@ def build_spark() -> SparkSession:
 
 
 def _print_table(title: str, rows) -> None:
+    """Render a top-N pair table to stdout as a fixed-width text block."""
     print(f"\n{title}")
     print("-" * 110)
     for _, r in rows.iterrows():
@@ -156,6 +164,7 @@ def _print_table(title: str, rows) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """CLI entrypoint: run the self-join, emit two JSON files (all-ships + civilian-only top-N)."""
     p = argparse.ArgumentParser(description="Detect top-N closest vessel pairs.")
     p.add_argument("--in", dest="inp", type=Path,
                    default=Path("/app/data/processed/aisdk-2021-12-clean"))

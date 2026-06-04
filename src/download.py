@@ -18,16 +18,19 @@ GET_TIMEOUT_S = 120
 
 
 def file_url(year: int, month: int) -> str:
+    """Build the AIS monthly ZIP URL for a given year and month."""
     return f"{AIS_BASE_URL}/{year}/aisdk-{year}-{month:02d}.zip"
 
 
 def _remote_size(url: str) -> int:
+    """Return the remote file's Content-Length in bytes via an HTTP HEAD request."""
     r = requests.head(url, allow_redirects=True, timeout=HEAD_TIMEOUT_S)
     r.raise_for_status()
     return int(r.headers["content-length"])
 
 
 def _download_once(url: str, dest: Path) -> None:
+    """Stream the URL to `dest` once, with size-based cache check and atomic rename."""
     expected = _remote_size(url)
     if dest.exists() and dest.stat().st_size == expected:
         print(f"cached   {dest.name} ({expected / 1e9:.2f} GB)")
@@ -53,6 +56,7 @@ def _download_once(url: str, dest: Path) -> None:
 
 
 def download_month(year: int, month: int, dest_dir: Path) -> Path:
+    """Download the monthly AIS ZIP for (year, month) into `dest_dir`, retrying on transient errors."""
     dest_dir.mkdir(parents=True, exist_ok=True)
     url = file_url(year, month)
     dest = dest_dir / Path(url).name
@@ -71,12 +75,14 @@ def download_month(year: int, month: int, dest_dir: Path) -> Path:
 
 
 def check_month(year: int, month: int) -> None:
+    """HEAD-only sanity check that prints the remote file size without downloading."""
     url = file_url(year, month)
     size = _remote_size(url)
     print(f"{Path(url).name:30s} {size / 1e9:6.2f} GB  ({url})")
 
 
 def main(argv: list[str] | None = None) -> int:
+    """CLI entrypoint: download the configured month's ZIP, or HEAD-check it with --check."""
     p = argparse.ArgumentParser(description="Download Danish AIS monthly ZIP.")
     p.add_argument("--year", type=int, default=2021)
     p.add_argument("--month", type=int, default=12)
