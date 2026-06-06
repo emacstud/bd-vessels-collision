@@ -14,7 +14,9 @@
     "name_b":"HG 165 SOUTH OCEAN",
     "ship_type_a":"Fishing",
     "ship_type_b":"Fishing",
-    "dist_m":1.1191537303
+    "dist_m":1.1191537303,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":211810060,
@@ -31,7 +33,9 @@
     "name_b":"GEO OCEAN V",
     "ship_type_a":"HSC",
     "ship_type_b":"Other",
-    "dist_m":1.5580513565
+    "dist_m":1.5580513565,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":219017554,
@@ -48,7 +52,9 @@
     "name_b":"JANNE",
     "ship_type_a":"Pleasure",
     "ship_type_b":"Pleasure",
-    "dist_m":3.1699691011
+    "dist_m":3.1699691011,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":265750000,
@@ -65,7 +71,9 @@
     "name_b":"COURAGE AF SKILLINGE",
     "ship_type_a":"Fishing",
     "ship_type_b":"Other",
-    "dist_m":3.3953627842
+    "dist_m":3.3953627842,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":219023182,
@@ -82,7 +90,9 @@
     "name_b":"NYBOLIG",
     "ship_type_a":"Fishing",
     "ship_type_b":"Pleasure",
-    "dist_m":3.5174970153
+    "dist_m":3.5174970153,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":219021240,
@@ -99,7 +109,9 @@
     "name_b":"MV SCOT CARRIER",
     "ship_type_a":"Other",
     "ship_type_b":"Cargo",
-    "dist_m":4.0759705071
+    "dist_m":4.0759705071,
+    "silenced_a":true,
+    "silenced_b":false
   },
   {
     "mmsi_a":261002520,
@@ -116,7 +128,9 @@
     "name_b":"DZI-10",
     "ship_type_a":"Fishing",
     "ship_type_b":"Fishing",
-    "dist_m":6.8170637107
+    "dist_m":6.8170637107,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":265755000,
@@ -133,7 +147,9 @@
     "name_b":"MIRACULIX",
     "ship_type_a":"Other",
     "ship_type_b":"Fishing",
-    "dist_m":11.1978025467
+    "dist_m":11.1978025467,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":261002850,
@@ -150,7 +166,9 @@
     "name_b":"UST-94",
     "ship_type_a":"Fishing",
     "ship_type_b":"Undefined",
-    "dist_m":15.3763760815
+    "dist_m":15.3763760815,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":261001010,
@@ -167,6 +185,8 @@
     "name_b":"M\/Y NUREK",
     "ship_type_a":"Pleasure",
     "ship_type_b":"Pleasure",
-    "dist_m":20.06005219
+    "dist_m":20.06005219,
+    "silenced_a":false,
+    "silenced_b":false
   }
 ]

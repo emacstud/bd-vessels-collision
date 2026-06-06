@@ -14,7 +14,9 @@
     "name_b":"KBV 034",
     "ship_type_a":"Law enforcement",
     "ship_type_b":"Law enforcement",
-    "dist_m":0.2923841189
+    "dist_m":0.2923841189,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":230053260,
@@ -31,7 +33,9 @@
     "name_b":"SOUND CASTOR",
     "ship_type_a":"Dredging",
     "ship_type_b":"Undefined",
-    "dist_m":0.8197602541
+    "dist_m":0.8197602541,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":265768840,
@@ -48,7 +52,9 @@
     "name_b":"RESCUE SNOW",
     "ship_type_a":"SAR",
     "ship_type_b":"SAR",
-    "dist_m":0.8204607993
+    "dist_m":0.8204607993,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":231848000,
@@ -65,7 +71,9 @@
     "name_b":"GERDA",
     "ship_type_a":"Tug",
     "ship_type_b":"Tanker",
-    "dist_m":0.845918777
+    "dist_m":0.845918777,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":219019287,
@@ -82,7 +90,9 @@
     "name_b":"HG 165 SOUTH OCEAN",
     "ship_type_a":"Fishing",
     "ship_type_b":"Fishing",
-    "dist_m":1.1191537303
+    "dist_m":1.1191537303,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":265011730,
@@ -99,7 +109,9 @@
     "name_b":"RESCUE FAMOUS",
     "ship_type_a":"SAR",
     "ship_type_b":"SAR",
-    "dist_m":1.1552980277
+    "dist_m":1.1552980277,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":265011730,
@@ -116,7 +128,9 @@
     "name_b":"RESCUE B JARLEBRING",
     "ship_type_a":"SAR",
     "ship_type_b":"SAR",
-    "dist_m":1.2048032136
+    "dist_m":1.2048032136,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":219019015,
@@ -133,7 +147,9 @@
     "name_b":"RESCUE SPARB. SKANE",
     "ship_type_a":"SAR",
     "ship_type_b":"SAR",
-    "dist_m":1.2129300853
+    "dist_m":1.2129300853,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":219028337,
@@ -150,7 +166,9 @@
     "name_b":"VIKING AMBER",
     "ship_type_a":"Tug",
     "ship_type_b":"Cargo",
-    "dist_m":1.2217354898
+    "dist_m":1.2217354898,
+    "silenced_a":false,
+    "silenced_b":false
   },
   {
     "mmsi_a":265523410,
@@ -167,6 +185,8 @@
     "name_b":"RESCUE SPARB. SKANE",
     "ship_type_a":"SAR",
     "ship_type_b":"SAR",
-    "dist_m":1.287185517
+    "dist_m":1.287185517,
+    "silenced_a":false,
+    "silenced_b":false
   }
 ]

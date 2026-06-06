@@ -1,0 +1,15 @@
+{
+  "mmsi_a": 219023182,
+  "mmsi_b": 219027087,
+  "name_a": "CHARVIL",
+  "name_b": "NYBOLIG",
+  "ship_type_a": "Fishing",
+  "ship_type_b": "Pleasure",
+  "timestamp_utc": "2021-12-13T14:30:27.000",
+  "lat_a": 55.065282,
+  "lon_a": 15.141328,
+  "lat_b": 55.065342,
+  "lon_b": 15.141535,
+  "distance_m": 14.7730368611,
+  "window_minutes": 10
+}

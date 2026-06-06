@@ -18,6 +18,14 @@ LON_CELL_DEG = 150.0 / 63_700.0
 DISTANCE_THRESHOLD_M = 100.0
 MIN_MOVING_SOG_KN = 1.0
 
+SILENCE_WINDOW_S = 60
+SILENCE_OBSERVATION_BUFFER_S = 60 * 60
+
+PORT_CELL_SIZE_M = 500.0
+PORT_LAT_CELL_DEG = PORT_CELL_SIZE_M / 111_000.0
+PORT_LON_CELL_DEG = PORT_CELL_SIZE_M / 63_700.0
+PORT_SILENCE_THRESHOLD = 2
+
 OPERATIONAL_SHIP_TYPES = ["Pilot", "Tug", "SAR", "Law enforcement", "Dredging", "Towing", "Towing long/wide"]
 
 TOP_N_DEFAULT = 10
@@ -58,6 +66,7 @@ def expand_neighbors(df: DataFrame, spark: SparkSession) -> DataFrame:
 
 def detect_pairs(spark: SparkSession, df: DataFrame) -> DataFrame:
     """Spatial-temporal self-join: emit candidate pairs of moving pings within 100 m of each other."""
+    clean_df = df  # keep the original (unfiltered) clean dataset for the silence enrichment step
     df = with_bucket_keys(df).filter(F.col("sog") > MIN_MOVING_SOG_KN)
     right = expand_neighbors(df, spark).alias("b")
     left = df.alias("a")
@@ -93,7 +102,7 @@ def detect_pairs(spark: SparkSession, df: DataFrame) -> DataFrame:
         """Canonicalise A/B columns so the vessel with the smaller MMSI is always 'a'."""
         return F.when(a_lower, F.col(col_a)).otherwise(F.col(col_b))
 
-    return pairs.select(
+    pairs_canonical = pairs.select(
         pick("a.mmsi", "b.mmsi").alias("mmsi_a"),
         pick("b.mmsi", "a.mmsi").alias("mmsi_b"),
         pick("a.ts", "b.ts").alias("ts_a"),
@@ -115,6 +124,93 @@ def detect_pairs(spark: SparkSession, df: DataFrame) -> DataFrame:
         pick("a.ship_type", "b.ship_type").alias("ship_type_a"),
         pick("b.ship_type", "a.ship_type").alias("ship_type_b"),
         (F.col("dist_nm") / NM_PER_M).alias("dist_m"),
+    )
+
+    return enrich_with_silence(pairs_canonical, clean_df)
+
+
+def enrich_with_silence(pairs: DataFrame, clean_df: DataFrame) -> DataFrame:
+    """Add silenced_a, silenced_b boolean columns indicating each vessel went silent
+    after the close approach IN OPEN WATER (not in a harbour / AIS-coverage gap).
+    """
+    last_pings = clean_df.groupBy("mmsi").agg(F.max("ts").alias("last_ts"))
+    end_row = clean_df.agg(F.max("ts").alias("end")).first()
+    if end_row is None or end_row["end"] is None:
+        raise ValueError("clean_df has no rows -- cannot determine dataset end timestamp")
+    dataset_end_ts = end_row["end"]
+    dataset_end_s = int(dataset_end_ts.timestamp())
+
+    w_last = Window.partitionBy("mmsi").orderBy(F.col("ts").desc())
+    last_with_cell = (
+        clean_df
+        .withColumn("_rn", F.row_number().over(w_last))
+        .filter(F.col("_rn") == 1)
+        .select(
+            "mmsi",
+            F.floor(F.col("lat") / F.lit(PORT_LAT_CELL_DEG)).cast("int").alias("_p_lat"),
+            F.floor(F.col("lon") / F.lit(PORT_LON_CELL_DEG)).cast("int").alias("_p_lon"),
+        )
+    )
+
+    port_cells = (
+        last_with_cell
+        .groupBy("_p_lat", "_p_lon")
+        .agg(F.countDistinct("mmsi").alias("_n"))
+        .filter(F.col("_n") >= PORT_SILENCE_THRESHOLD)
+        .select("_p_lat", "_p_lon")
+    )
+
+    mmsi_in_port = (
+        last_with_cell
+        .join(F.broadcast(port_cells), ["_p_lat", "_p_lon"])
+        .select(F.col("mmsi").alias("_port_mmsi"))
+    )
+
+    last_a = (
+        last_pings.withColumnRenamed("mmsi", "_mmsi_a_lkp")
+        .withColumnRenamed("last_ts", "last_ts_a")
+    )
+    last_b = (
+        last_pings.withColumnRenamed("mmsi", "_mmsi_b_lkp")
+        .withColumnRenamed("last_ts", "last_ts_b")
+    )
+    port_a = mmsi_in_port.withColumnRenamed("_port_mmsi", "_port_a_lkp")
+    port_b = mmsi_in_port.withColumnRenamed("_port_mmsi", "_port_b_lkp")
+
+    enriched = (
+        pairs
+        .join(F.broadcast(last_a), F.col("mmsi_a") == F.col("_mmsi_a_lkp"), "left")
+        .drop("_mmsi_a_lkp")
+        .join(F.broadcast(last_b), F.col("mmsi_b") == F.col("_mmsi_b_lkp"), "left")
+        .drop("_mmsi_b_lkp")
+        .join(F.broadcast(port_a), F.col("mmsi_a") == F.col("_port_a_lkp"), "left")
+        .withColumn("_in_port_a", F.col("_port_a_lkp").isNotNull())
+        .drop("_port_a_lkp")
+        .join(F.broadcast(port_b), F.col("mmsi_b") == F.col("_port_b_lkp"), "left")
+        .withColumn("_in_port_b", F.col("_port_b_lkp").isNotNull())
+        .drop("_port_b_lkp")
+    )
+
+    ts_a_long = F.col("ts_a").cast("long")
+    ts_b_long = F.col("ts_b").cast("long")
+    has_room_a = ts_a_long + SILENCE_OBSERVATION_BUFFER_S <= F.lit(dataset_end_s)
+    has_room_b = ts_b_long + SILENCE_OBSERVATION_BUFFER_S <= F.lit(dataset_end_s)
+
+    return (
+        enriched
+        .withColumn(
+            "silenced_a",
+            (F.col("last_ts_a").cast("long") <= ts_a_long + SILENCE_WINDOW_S)
+            & has_room_a
+            & ~F.col("_in_port_a"),
+        )
+        .withColumn(
+            "silenced_b",
+            (F.col("last_ts_b").cast("long") <= ts_b_long + SILENCE_WINDOW_S)
+            & has_room_b
+            & ~F.col("_in_port_b"),
+        )
+        .drop("last_ts_a", "last_ts_b", "_in_port_a", "_in_port_b")
     )
 
 
@@ -164,7 +260,7 @@ def _print_table(title: str, rows) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """CLI entrypoint: run the self-join, emit two JSON files (all-ships + civilian-only top-N)."""
+    """CLI entrypoint: run the self-join, emit three JSON files (all-ships, civilian-only, silenced top-N)."""
     p = argparse.ArgumentParser(description="Detect top-N closest vessel pairs.")
     p.add_argument("--in", dest="inp", type=Path,
                    default=Path("/app/data/processed/aisdk-2021-12-clean"))
@@ -172,6 +268,8 @@ def main(argv: list[str] | None = None) -> int:
                    default=Path("/app/output/top_pairs.json"))
     p.add_argument("--out-civilian", type=Path,
                    default=Path("/app/output/top_pairs_civilian.json"))
+    p.add_argument("--out-silenced", type=Path,
+                   default=Path("/app/output/top_pairs_silenced.json"))
     p.add_argument("--top-n", type=int, default=TOP_N_DEFAULT)
     args = p.parse_args(argv)
 
@@ -188,9 +286,12 @@ def main(argv: list[str] | None = None) -> int:
             & ~F.col("ship_type_b").isin(*OPERATIONAL_SHIP_TYPES)
         )
         top_civilian = top_n_distinct(civilian_pairs, args.top_n)
+        silenced_pairs = pairs.filter(F.col("silenced_a") | F.col("silenced_b"))
+        top_silenced = top_n_distinct(silenced_pairs, args.top_n)
 
         rows_all = top_all.toPandas()
         rows_civilian = top_civilian.toPandas()
+        rows_silenced = top_silenced.toPandas()
         pairs.unpersist()
     finally:
         spark.stop()
@@ -201,11 +302,17 @@ def main(argv: list[str] | None = None) -> int:
         + ", ".join(OPERATIONAL_SHIP_TYPES) + "):",
         rows_civilian,
     )
+    _print_table(
+        f"Top {args.top_n} closest pairs, where at least one of the vessels became silent:",
+        rows_silenced,
+    )
 
     rows_all.to_json(args.out, orient="records", date_format="iso", indent=2)
     rows_civilian.to_json(args.out_civilian, orient="records", date_format="iso", indent=2)
+    rows_silenced.to_json(args.out_silenced, orient="records", date_format="iso", indent=2)
     print(f"\nwrote: {args.out}")
     print(f"wrote: {args.out_civilian}")
+    print(f"wrote: {args.out_silenced}")
     return 0
 
 

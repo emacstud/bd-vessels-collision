@@ -1,0 +1,15 @@
+{
+  "mmsi_a": 219021240,
+  "mmsi_b": 232018267,
+  "name_a": "KARIN HOEJ",
+  "name_b": "MV SCOT CARRIER",
+  "ship_type_a": "Other",
+  "ship_type_b": "Cargo",
+  "timestamp_utc": "2021-12-13T02:27:29.000",
+  "lat_a": 55.223067,
+  "lon_a": 14.24373,
+  "lat_b": 55.223092,
+  "lon_b": 14.243683,
+  "distance_m": 4.0759705071,
+  "window_minutes": 10
+}

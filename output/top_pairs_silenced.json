@@ -1,0 +1,40 @@
+[
+  {
+    "mmsi_a":219021240,
+    "mmsi_b":232018267,
+    "ts_a":"2021-12-13T02:27:29.000",
+    "ts_b":"2021-12-13T02:27:58.000",
+    "lat_a":55.223067,
+    "lat_b":55.223092,
+    "lon_a":14.24373,
+    "lon_b":14.243683,
+    "sog_a":10.3,
+    "sog_b":3.9,
+    "name_a":"KARIN HOEJ",
+    "name_b":"MV SCOT CARRIER",
+    "ship_type_a":"Other",
+    "ship_type_b":"Cargo",
+    "dist_m":4.0759705071,
+    "silenced_a":true,
+    "silenced_b":false
+  },
+  {
+    "mmsi_a":219023182,
+    "mmsi_b":219027087,
+    "ts_a":"2021-12-13T14:30:27.000",
+    "ts_b":"2021-12-13T14:30:28.000",
+    "lat_a":55.065282,
+    "lat_b":55.065342,
+    "lon_a":15.141328,
+    "lon_b":15.141535,
+    "sog_a":3.7,
+    "sog_b":3.7,
+    "name_a":"CHARVIL",
+    "name_b":"NYBOLIG",
+    "ship_type_a":"Fishing",
+    "ship_type_b":"Pleasure",
+    "dist_m":14.7730368611,
+    "silenced_a":false,
+    "silenced_b":true
+  }
+]

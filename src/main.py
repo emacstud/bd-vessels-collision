@@ -27,10 +27,6 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--month", type=int, default=12)
     p.add_argument("--data-root", type=Path, default=Path("/app/data"))
     p.add_argument("--output-root", type=Path, default=Path("/app/output"))
-    p.add_argument("--primary-rank", type=int, default=6,
-                   help="rank in top_pairs_civilian.json copied to output/identified_collision/ "
-                        "(default 8 = the verified Scot Carrier / Karin Hoej collision; "
-                        "use --primary-rank 1 to get the literal minimum-distance pair instead)")
     args = p.parse_args(argv)
 
     args.output_root.mkdir(parents=True, exist_ok=True)
@@ -41,6 +37,7 @@ def main(argv: list[str] | None = None) -> int:
     clean_dir = args.data_root / "processed" / f"aisdk-{args.year}-{args.month:02d}-clean"
     all_pairs_json = args.output_root / "top_pairs.json"
     civ_pairs_json = args.output_root / "top_pairs_civilian.json"
+    silenced_pairs_json = args.output_root / "top_pairs_silenced.json"
 
     if zip_path.exists() or (extracted_dir.exists() and any(extracted_dir.glob("aisdk-*.csv"))):
         _skip(1, "download", f"raw data already present at {raw_dir}")
@@ -71,25 +68,27 @@ def main(argv: list[str] | None = None) -> int:
             "--out", str(clean_dir),
         ])
 
-    if all_pairs_json.exists() and civ_pairs_json.exists():
-        _skip(4, "detect", "top_pairs.json and top_pairs_civilian.json exist")
+    if all_pairs_json.exists() and civ_pairs_json.exists() and silenced_pairs_json.exists():
+        _skip(4, "detect", "all three top_pairs JSON files exist")
     else:
         _header(4, "detect")
         detect.main([
             "--in", str(clean_dir),
             "--out", str(all_pairs_json),
             "--out-civilian", str(civ_pairs_json),
+            "--out-silenced", str(silenced_pairs_json),
         ])
 
-    _header(5, "visualize (top 10 civilian + top 10 all-ships, one shared Spark session)")
+    _header(5, "visualize (top 10 civilian + top 10 all-ships + top 10 silenced, one shared Spark session)")
     # Slice at 10 so the rendered set stays bounded even if detect.py was
     # previously run with a larger --top-n (e.g. for rank-lookup analysis).
     civ_pairs = json.loads(civ_pairs_json.read_text())[:10]
     all_pairs = json.loads(all_pairs_json.read_text())[:10]
+    silenced_pairs = json.loads(silenced_pairs_json.read_text())[:10]
 
     spark = visualize.build_spark()
     try:
-        for label, pairs in (("civilian", civ_pairs), ("all", all_pairs)):
+        for label, pairs in (("civilian", civ_pairs), ("all", all_pairs), ("silenced", silenced_pairs)):
             for i, pair in enumerate(pairs, start=1):
                 base = args.output_root / f"{label}_rank{i:02d}"
                 name_a = pair.get("name_a") or f"MMSI{pair['mmsi_a']}"
@@ -111,7 +110,9 @@ def main(argv: list[str] | None = None) -> int:
 
     identified_dir = args.output_root / "identified_collision"
     identified_dir.mkdir(parents=True, exist_ok=True)
-    src_base = args.output_root / f"civilian_rank{args.primary_rank:02d}"
+    # The canonical identified collision is always rank 1 of the "silenced"
+    # list — the closest pair whose vessel(s) went silent after the encounter.
+    src_base = args.output_root / "silenced_rank01"
     for ext, dest_name in [(".html", "collision_map.html"),
                            (".png", "collision_map.png"),
                            (".json", "result.json")]:
@@ -126,8 +127,8 @@ def main(argv: list[str] | None = None) -> int:
     result_path = identified_dir / "result.json"
     if result_path.exists():
         r = json.loads(result_path.read_text())
-        print("  Identified collision (civilian rank "
-              f"{args.primary_rank}, copied to output_root/identified_collision/):")
+        print("  Identified collision (silenced rank 1, "
+              "copied to output_root/identified_collision/):")
         print(f"    Vessel A : {r['name_a']}  (MMSI {r['mmsi_a']}, {r['ship_type_a']})")
         print(f"    Vessel B : {r['name_b']}  (MMSI {r['mmsi_b']}, {r['ship_type_b']})")
         print(f"    Time     : {r['timestamp_utc']} UTC")
@@ -137,9 +138,12 @@ def main(argv: list[str] | None = None) -> int:
 
     n_civ_maps = len(list(args.output_root.glob("civilian_rank*.png")))
     n_all_maps = len(list(args.output_root.glob("all_rank*.png")))
+    n_sil_maps = len(list(args.output_root.glob("silenced_rank*.png")))
     print(
         f"\nSupplementary visualizations: {n_civ_maps} civilian + {n_all_maps} all-ships "
-        f"(see civilian_rank*.{{html,png,json}} and all_rank*.{{html,png,json}})"
+        f"+ {n_sil_maps} silenced "
+        f"(see civilian_rank*.{{html,png,json}}, all_rank*.{{html,png,json}}, "
+        f"silenced_rank*.{{html,png,json}})"
     )
 
     print(f"\n  Total artifacts in {args.output_root}: "

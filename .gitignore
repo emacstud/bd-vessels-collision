@@ -2,6 +2,20 @@ data/raw/extracted/*
 !data/raw/extracted/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+output/*
+!output/identified_collision/
+!output/top_pairs.json
+!output/top_pairs_civilian.json
+!output/top_pairs_silenced.json
+!output/civilian_rank*.png
+!output/civilian_rank*.html
+!output/civilian_rank*.json
+!output/all_rank*.png
+!output/all_rank*.html
+!output/all_rank*.json
+!output/silenced_rank*.png
+!output/silenced_rank*.html
+!output/silenced_rank*.json
 
 __pycache__/
 *.py[cod]
